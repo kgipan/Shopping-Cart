@@ -20,9 +20,9 @@ const useDataApi = (initialUrl, initialData) => {
     isError: false,
     data: initialData,
   });
-
+console.log(`useDataApi called`);
   useEffect(() => {
-
+console.log("useEffect Called");
     let didCancel = false;
     const fetchData = async () => {
       dispatch({ type: "FETCH_INIT" });
@@ -94,56 +94,50 @@ const Products = () => {
       data: [],
     }
   ); 
-
-  // Add item to cart and remove it from stock
+console.log(`Rendering Products ${JSON.stringify(data)}`);
+ // Fetch Data
   const addToCart = (e) => {
     let name = e.target.name;
     let item = items.filter((item) => item.name == name);
     setCart([...cart, ...item]);
 
-    // Reduce stock
+    // doFetch(query);
     let floorStock = [...items];
     floorStock.forEach(p => p.name === name ? p.instock-- : p.instock = p.instock);
     setItems([...floorStock]);
 
   };
 
-  // Delete item from cart and add it back to stock
   const deleteCartItem = (index) => {
     let product = cart.filter((item,i) => index === i)[0];
     let floorStock = [...items];
     floorStock.forEach(p => p.name == product.name ? p.instock++ : p.instock += 0);
     setItems([...floorStock]);
-
     let newCart = cart.filter((item, i) => index != i);
     setCart(newCart);
-
   };
   const photos = ["apple.png", "orange.png", "beans.png", "cabbage.png", "nuts.png"];
 
   let list = items.map((item, index) => {
-    
     if (item.instock > 0) {
       return (
-        <li key={index} style={{display:"flex", margin: "10px 0px", alignItems:"left"}}>
-            <Image src={photos[index % 5]} width={60} style={{flexGrow:0,flexShrink:0}}></Image>
+        <li key={index} style={{dispay:"flex", alignItems:"left"}}>
+            <Image src={photos[index % 5]} width={70} roundedCircle></Image>
             <div>
-              <Button style={{margin: "5px", minWidth: "150px", maxHeight: "35px"}} variant="info" size="large" name={item.name} type="submit" onClick={addToCart}>
+              <Button style={{margin:"5px"}}variant="info" size="large" name={item.name} type="submit" onClick={addToCart}>
                 {item.name} : ${item.cost}
               </Button>
-              <div style={{margin: "0px 5px", textAlign: "center", fontSize: "0.9rem"}}>{item.instock} in stock</div>
+              <div>{item.instock} in stock</div>
             </div>
-
         </li>
       );
     }
 
   });
-
   let cartList = cart.map((item, index) => {
     return (
       <Card key={index}>
-        <Card.Header id={"card-header-"+index}>
+        <Card.Header>
         <Accordion.Toggle as={Button} variant="link" eventKey={1 + index}>
             <b>{item.name}</b> (1)
           </Accordion.Toggle>
@@ -154,7 +148,7 @@ const Products = () => {
         >
           <Card.Body>
             <div style={{display:"flex", alignItems: "center"}}>
-              <div style={{margin:"5px 10px 5px 5px"}}>$ {item.cost} {item.country}</div>
+              <div>$ {item.cost} {item.country}</div>
               <Button variant="danger" size="large" onClick={() => deleteCartItem(index)} style={{fontSize: "0.9em"}}>Remove from Cart</Button>
             </div>
           </Card.Body>
@@ -219,35 +213,33 @@ const Products = () => {
   return (
     <Container>
       <Row>
-        <Col style={{paddingBottom: "30px"}}>
-          <h2 style={{padding:"15px 0px 5px 0px", color:"blue"}}>Groceries</h2>
-          <ul style={{ listStyleType: "none", paddingLeft: "0px" }}>{list}</ul>
+        <Col>
+          <h2 style={{color:"blue"}}>Groceries</h2>
+          <ul style={{listStyleType: "none"}}>{list}</ul>
         </Col>
-        <Col style={{paddingBottom: "30px"}}>
-          <h2 style={{padding:"15px 0px 5px 0px", color:"blue"}}>In Your Cart</h2>
+        <Col>
+          <h2 style={{color:"blue"}}>In Your Cart</h2>
           <Accordion>{cartList}</Accordion>
         </Col>
-        <Col style={{paddingBottom: "30px"}}>
-          <h2 style={{padding:"15px 0px 5px 0px", color:"blue"}}>Check Out </h2>
-          <Button variant="info" style={{minWidth:"200px"}} onClick={checkOut}>Total: $ {finalList().total}</Button>
-          <div style={{margin:"5px 15px"}}>{finalList().total > 0  && finalList().final ? <><b>Cart:</b><br/></> : null }{finalList().total > 0 && finalList().final}{finalList().final.length > 1 && finalList().count} </div>
+        <Col>
+          <h2 style={{color:"blue"}}>Check Out </h2>
+          <Button variant="info" onClick={checkOut}>Total: $ {finalList().total}</Button>
+          <div>{finalList().total > 0  && finalList().final ? <><b>Cart:</b><br/></> : null }{finalList().total > 0 && finalList().final}{finalList().final.length > 1 && finalList().count} </div>
         </Col>
       </Row>
-      <Row style={{border: "1px solid #ddd", padding: "20px"}}>
+      <Row>
         <form
-          style={{marginBottom: "0px"}}
           onSubmit={(event) => {
             event.preventDefault();
             restockProducts(`${query}`);
           }}
         >
           <input
-            style={{margin:"5px",padding:"5px", width:"250px"}}
             type="text"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
           />
-          <button style={{margin:"0px 10px"}} type="submit">{items.length === 0 ? 'Stock Products' : 'Restock Products'}</button>
+          <button type="submit">{items.length === 0 ? 'Stock Products' : 'Restock Products'}</button>
         </form>
       </Row>
     </Container>
